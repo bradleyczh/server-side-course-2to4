@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var app = express();
 
+var config = require('./config');
 const Dishes = require('./models/dishes');
 
 var index = require('./routes/index');
@@ -21,7 +22,7 @@ var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
 
 // Connection URL
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
     useMongoClient: true,
     /* other options */
@@ -52,22 +53,22 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// the code below is only used for session-based authentication
+// function auth (req, res, next) {
+//
+//   if(!req.user) {
+//       var err = new Error('You are not authenticated!');
+//       err.status = 403;
+//       return next(err);
+//   }
+//   else {
+//     next();
+//   }
+// };
+// app.use(auth);
+
 app.use('/', index);
 app.use('/users', users);
-
-function auth (req, res, next) {
-
-  if(!req.user) {
-      var err = new Error('You are not authenticated!');
-      err.status = 403;
-      return next(err);
-  }
-  else {
-    next();
-  }
-};
-
-app.use(auth);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
